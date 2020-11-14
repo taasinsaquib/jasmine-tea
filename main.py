@@ -1,4 +1,3 @@
-import markovify
 import requests
 from bs4 import BeautifulSoup
 
@@ -28,8 +27,8 @@ def extract(table):
     for line in lines:
         childTag = line.find('th')
         if childTag:
-            name = line.find_all('th')[0].string
-            speech = line.find_all('td')[0].string
+            name = line.find_all('th')[0].getText()
+            speech = line.find_all('td')[0].getText()
             name = name.replace('\n', '')
             if name in quotes:
                 quotes[name].append(speech)
@@ -45,15 +44,18 @@ def textGen(name, quote):
     text = text.rstrip('\r\n')
     return(text)
     
+def create_file(name, quote):
+    f = open(name+'.txt', 'a', encoding="utf-8")
+    if name in quote:
+        for line in quote[name]:
+            f.write(line)
+        f.close()
+
 
 for transcript in transcript_titles:
     x = getsoup('https://avatar.fandom.com/wiki/'+transcript)
     for i in range(len(x)):
-        a = extract(x[i])
-        keyIn = 'Iroh'
-        print(a.keys())
-        b = textGen(keyIn, a)
+        quote = extract(x[i])
+        name = "Sokka"
+        create_file(name,quote)
 
-text_model = markovify.Text(text)
-for i in range(3):
-   print(text_model.make_sentence())
