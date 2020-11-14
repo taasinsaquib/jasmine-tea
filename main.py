@@ -2,6 +2,17 @@ import markovify
 import requests
 from bs4 import BeautifulSoup
 
+def getsoup_episodes(url):
+    
+    page = requests.get(url)
+    soup = BeautifulSoup(page.content, 'html.parser')
+    
+    episodes = soup.find_all("a", {"class": "category-page__member-link"})
+    transcript_titles = [episode.string for episode in episodes]
+    
+    return transcript_titles
+
+transcript_titles = getsoup_episodes('https://avatar.fandom.com/wiki/Category:Avatar:_The_Last_Airbender_episode_transcripts?oldid=1052211')
 
 def getsoup(url):
     page = requests.get(url)
@@ -10,10 +21,6 @@ def getsoup(url):
     tables = soup.find_all('table', {"class": "wikitable"})
 
     return tables
-
-
-x = getsoup('https://avatar.fandom.com/wiki/Transcript:The_Last_Airbender')
-
 
 def extract(table):
     quotes = {}
@@ -28,23 +35,25 @@ def extract(table):
                 quotes[name].append(speech)
             else:
                 quotes[name] = [speech]
-
-    #print(quotes)
     return(quotes)
-    # print(len(quotes.keys()))
+
 
 def textGen(name, quote):
     text = ''
     for words in quote[name]:
         text += words
     text = text.rstrip('\r\n')
-    print(text)
-    text_model = markovify.Text(text)
-    for i in range(3):
-        print(text_model.make_sentence())
+    return(text)
     
 
-a = extract(x[1])
-keyIn = 'Iroh'
-print(a.keys())
-b = textGen(keyIn, a)
+for transcript in transcript_titles:
+    x = getsoup('https://avatar.fandom.com/wiki/'+transcript)
+    for i in range(len(x)):
+        a = extract(x[i])
+        keyIn = 'Iroh'
+        print(a.keys())
+        b = textGen(keyIn, a)
+
+text_model = markovify.Text(text)
+for i in range(3):
+   print(text_model.make_sentence())
