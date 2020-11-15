@@ -28,12 +28,17 @@ def extract(table):
         childTag = line.find('th')
         if childTag:
             name = line.find_all('th')[0].getText()
+            # directions = line.find_all('i')[0].getText()
             speech = line.find_all('td')[0].getText()
             name = name.replace('\n', '')
+            speech = speech.replace('[', '')
+            speech = speech.replace(']', '')
             if name in quotes:
                 quotes[name].append(speech)
             else:
                 quotes[name] = [speech]
+            # if directions in speech:
+                # quotes[name].remove(directions)
     return(quotes)
 
 
@@ -56,6 +61,6 @@ for transcript in transcript_titles:
     x = getsoup('https://avatar.fandom.com/wiki/'+transcript)
     for i in range(len(x)):
         quote = extract(x[i])
-        name = "Sokka"
+        name = "Suki"
         create_file(name,quote)
 
